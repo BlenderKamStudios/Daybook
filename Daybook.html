@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Daybook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Bellefair&display=swap">
+<style>
+:root{
+  --cream:#f8f2e0; --paper:#fbf7ea; --ink:#121212; --muted:#7b7566; --line:#d9d1bb;
+  --sand:#ebe4d2; --yellow:#f6d24a; --blue:#b9c9f1; --pink:#f2a6d3; --peach:#f4cdb0; --stone:#e3dcc9; --red:#c8342f;
+  --font:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --px:1.15px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--cream);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.4}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,.ev:focus-visible,.mcell:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+[hidden]{display:none!important}
+
+.frame{margin:16px;border:2px solid #5d5d5d;border-radius:30px;padding:16px;display:grid;grid-template-columns:210px 1fr;gap:26px;min-height:calc(100vh - 32px);background:var(--cream)}
+
+/* sidebar */
+.side{background:#111;color:#f3efe3;border-radius:24px;padding:26px 20px;display:flex;flex-direction:column;gap:26px;position:sticky;top:16px;align-self:start;min-height:calc(100vh - 66px)}
+.logo{display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;padding:0}
+.logo .wimg{display:block;width:100%;height:auto}
+.navg{display:flex;flex-direction:column;gap:6px}
+.navg small{color:#8d887a;font-size:.78rem;margin:0 0 6px 10px}
+.nav{display:flex;align-items:center;gap:12px;background:none;border:0;color:#f3efe3;padding:9px 10px;border-radius:10px;text-align:left;font-size:.92rem;position:relative}
+.nav svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.nav:hover{background:#1f1f1f}
+.nav.on{color:var(--pink);font-weight:600}
+.nav.on::before{content:"";position:absolute;left:-12px;top:8px;bottom:8px;width:2px;background:var(--pink);border-radius:2px}
+.side .spacer{flex:1}
+.mini{background:#1c1c1c;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;font-size:.8rem;color:#bdb8aa}
+.mini b{color:#fff;font-size:1.25rem;font-weight:600;letter-spacing:-.02em}
+.mbar{height:6px;border-radius:9px;background:#333;overflow:hidden}
+.mbar i{display:block;height:100%;background:var(--pink);width:0;transition:width .3s}
+
+/* main */
+main{min-width:0;display:flex;flex-direction:column;gap:20px;padding-top:4px}
+.top{display:flex;align-items:center;gap:14px}
+.search{flex:1;display:flex;align-items:center;gap:12px;border:1.5px solid var(--ink);border-radius:99px;padding:6px 8px 6px 6px;min-width:0}
+.sbtn{width:36px;height:36px;border-radius:50%;background:var(--pink);border:0;display:grid;place-items:center;flex:none}
+.sbtn svg,.rbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.search input{border:0;background:none;font:inherit;flex:1;min-width:60px;outline:none;padding:4px}
+.search input::placeholder{color:#2a2a2a}
+.in{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:.78rem}
+.in>span{margin-right:2px}
+.fchip{border:1px dashed #555;background:none;border-radius:99px;padding:2px 9px;font-size:.74rem}
+.fchip.off{opacity:.35;text-decoration:line-through}
+.fchip i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+.pill{border:0;border-radius:99px;background:#111;color:#fff;padding:9px 16px;font-weight:600;font-size:.85rem;white-space:nowrap}
+.rbtn{width:38px;height:38px;border-radius:50%;background:#111;color:#fff;border:0;display:grid;place-items:center;flex:none}
+.pill:hover,.rbtn:hover{background:#2c2c2c}
+
+h1{margin:0;font-size:clamp(1.8rem,3.2vw,2.6rem);font-weight:500;letter-spacing:-.045em;line-height:1.1}
+.sub{margin:6px 0 0;color:var(--muted);max-width:68ch}
+.tools{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.range{display:flex;align-items:center;gap:8px}
+.range .pill{display:inline-flex;align-items:center;gap:8px;font-size:.78rem;padding:9px 14px}
+.arrow{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--ink);background:none;display:grid;place-items:center;padding:0}
+.arrow svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.arrow:hover{background:var(--ink);color:#fff}
+.seg{display:flex;gap:6px}
+.seg button{border:0;background:var(--sand);border-radius:99px;padding:6px 14px;font-size:.76rem}
+.seg button.on{background:#111;color:#fff}
+
+/* week grid */
+.cal{overflow-x:auto;padding-bottom:6px}
+.grid{display:grid;gap:10px;min-width:900px}
+.wk{color:var(--muted);font-size:.75rem;text-align:center;align-self:center;line-height:1.2}
+.dh{background:var(--paper);border-radius:16px;padding:9px 6px;text-align:center;display:flex;flex-direction:column;gap:2px;align-items:center}
+.dh .n{font-size:.72rem;letter-spacing:.04em;color:#4a463b;text-transform:uppercase}
+.dh .d{font-size:.95rem;font-weight:600}
+.dh .f{font-size:.68rem;color:var(--muted);margin-top:2px}
+.dh.today{background:#111;color:#fff}.dh.today .n,.dh.today .f{color:#cfcab9}
+.dh.dim{opacity:.55}
+.dh.star{box-shadow:inset 0 0 0 1.5px var(--pink)}
+.dh.today.star{box-shadow:none}
+.axis{position:relative}
+.axis span{position:absolute;right:6px;font-size:.7rem;color:var(--muted);transform:translateY(-50%)}
+.col{position:relative;border-radius:16px;overflow:hidden}
+.col.hatch{background:repeating-linear-gradient(135deg,transparent 0 9px,rgba(0,0,0,.035) 9px 18px),var(--paper)}
+.col .hl{position:absolute;left:0;right:0;border-top:1px solid rgba(0,0,0,.05)}
+.free{position:absolute;left:0;right:0;background:rgba(255,255,255,.55);border-radius:12px;border:1px dashed rgba(0,0,0,.16)}
+.colnote{position:absolute;left:0;right:0;top:34px;text-align:center;font-size:.72rem;color:var(--muted);padding:0 10px}
+.col.sun .colnote{opacity:.8}
+.ev{position:absolute;background:var(--stone);border-radius:14px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;overflow:hidden;text-align:left;border:0;cursor:pointer;font:inherit;color:inherit;transition:transform .15s,opacity .15s}
+.ev:hover{transform:translateY(-1px);z-index:3;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.c-S{background:var(--yellow)}.c-L{background:var(--blue)}.c-P{background:var(--pink)}.c-A{background:var(--peach)}.c-R{background:var(--stone)}.c-E{background:#111;color:#fff}.c-X{background:#d7e8c4}
+.ev .r1{display:flex;align-items:center;gap:8px;min-width:0}
+.ico{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.65);display:grid;place-items:center;flex:none}
+.c-E .ico{background:rgba(255,255,255,.2)}
+.ico svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ev .ttl{font-weight:600;font-size:.82rem;line-height:1.2;letter-spacing:-.01em;min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis}
+.ev .meta{font-size:.7rem;opacity:.75}
+.ev .det{font-size:.7rem;opacity:.8;line-height:1.35;margin-top:2px;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical}
+.ev .tick{width:20px;height:20px;border-radius:50%;border:1.5px solid currentColor;background:none;display:grid;place-items:center;padding:0;flex:none;opacity:.55}
+.ev .tick svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:3;opacity:0}
+.ev .tick:hover{opacity:1}
+.ev.done{opacity:.5}
+.ev.done .tick{opacity:1;background:#111;color:#fff;border-color:#111}
+.c-E.done .tick{background:#fff;color:#111;border-color:#fff}
+.ev.done .tick svg{opacity:1}
+.ev.done .ttl{text-decoration:line-through}
+.ev.sm .ttl{white-space:nowrap}
+.ev.sm{padding:4px 8px;justify-content:center}.ev.sm .meta,.ev.sm .det{display:none}.ev.sm .ico{width:20px;height:20px}
+.ev.md .det{display:none}
+.ev.over{outline:2px dashed var(--red);outline-offset:-2px}
+.ev.dimmed{opacity:.2}
+.nowline{position:absolute;left:0;right:0;border-top:1.5px dashed #555;z-index:4;pointer-events:none}
+.nowline b{position:absolute;left:-1px;top:-9px;font-size:.66rem;font-weight:500;background:var(--cream);padding:0 4px;border-radius:5px}
+
+/* day view */
+.grid.one{min-width:0;max-width:560px}
+.dayhead{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:2px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--sand);border-radius:99px;padding:4px 11px;font-size:.76rem}
+.chip.pk{background:var(--pink)}
+.check{background:var(--paper);border-radius:14px;padding:12px 14px;font-size:.85rem;margin:0}
+
+/* month */
+.mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.mdh{text-align:center;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:4px}
+.mcell{background:var(--paper);border-radius:14px;padding:9px;min-height:104px;display:flex;flex-direction:column;gap:5px;text-align:left;border:0;font:inherit;color:inherit}
+.mcell:hover{box-shadow:inset 0 0 0 1.5px var(--ink)}
+.mcell.out{opacity:.4}.mcell.sun{background:transparent;border:1px dashed var(--line)}
+.mcell.today{background:#111;color:#fff}
+.mcell .mn{display:flex;justify-content:space-between;font-weight:600;font-size:.85rem}
+.mcell .mn small{font-weight:400;font-size:.68rem;opacity:.7}
+.dots{display:flex;gap:4px;flex-wrap:wrap}
+.dots i{width:9px;height:9px;border-radius:50%}
+.mcell .ms{font-size:.7rem;opacity:.75;margin-top:auto}
+.mcell .mbar2{height:5px;border-radius:9px;background:rgba(0,0,0,.1);overflow:hidden}
+.mcell.today .mbar2{background:rgba(255,255,255,.25)}
+.mcell .mbar2 i{display:block;height:100%;background:var(--ink);width:0}
+.mcell.today .mbar2 i{background:var(--pink)}
+.mcell .lab{font-size:.68rem;font-weight:600;border-radius:6px;background:var(--yellow);color:#111;padding:1px 6px;align-self:flex-start}
+.mcell .lab.ex{background:#111;color:#fff}.mcell.today .lab.ex{background:var(--pink);color:#111}
+
+/* panels */
+.panel{background:var(--paper);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:16px}
+.panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.big{font-size:2rem;font-weight:500;letter-spacing:-.04em;line-height:1}.big small{font-size:.9rem;color:var(--muted);font-weight:400;letter-spacing:0}
+.lbl{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.bar{height:9px;border-radius:99px;background:var(--sand);overflow:hidden}
+.bar i{display:block;height:100%;background:#111;width:0;transition:width .3s}
+.rowb{display:grid;grid-template-columns:140px 1fr 90px;gap:12px;align-items:center;font-size:.85rem}
+.rowb em{font-style:normal;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;font-size:.8rem}
+.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px}
+.rules li{background:var(--paper);border-radius:14px;padding:14px 16px;display:flex;gap:12px}
+.rules li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--pink);flex:none;margin-top:.45em}
+.at{width:100%;border-collapse:separate;border-spacing:0 8px}
+.at th{font-size:.72rem;text-align:left;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.05em;padding:0 10px}
+.at td{background:var(--sand);padding:8px 10px}.at td:first-child{border-radius:12px 0 0 12px;font-weight:600}.at td:last-child{border-radius:0 12px 12px 0}
+.at tr.key td{background:var(--yellow)}
+input[type=number],input[type=time],input[type=date],input[type=text],select{font:inherit;background:var(--paper);border:1.5px solid transparent;border-radius:10px;padding:6px 9px;color:inherit;max-width:100%}
+input:focus,select:focus{border-color:var(--ink)}
+
+dialog{border:0;border-radius:22px;padding:24px;background:var(--paper);color:var(--ink);width:min(440px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+dialog h3{margin:0 0 4px;font-size:1.25rem;letter-spacing:-.03em;font-weight:600}
+.form{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:.78rem;color:var(--muted)}
+.form .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:6px}
+.btn{border:1.5px solid var(--ink);background:none;border-radius:99px;padding:8px 16px;font-size:.85rem}
+.btn.p{background:#111;color:#fff}
+.btn.d{border-color:var(--red);color:var(--red)}
+.dd{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.dtext{margin:8px 0;color:#2f2c24}
+
+.foot{color:var(--muted);font-size:.75rem;padding-block:4px 10px}
+
+@media (max-width:1000px){
+  .frame{grid-template-columns:1fr;margin:8px;padding:10px;border-radius:22px;gap:14px}
+  .side{position:static;min-height:0;flex-direction:row;flex-wrap:wrap;align-items:center;padding:12px 14px;gap:8px}
+  .side .navg small,.side .spacer,.side .mini,.side .navg.tools{display:none}
+  .logo{padding:0;margin-right:8px}
+  .navg{flex-direction:row;flex-wrap:wrap}
+  .nav.on::before{display:none}
+  .in{display:none}
+}
+@media (max-width:640px){
+  .rowb{grid-template-columns:90px 1fr 70px}
+  .mcell{min-height:78px;padding:6px}.mcell .ms,.mcell .lab{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="frame">
+  <aside class="side">
+    <div class="logo">
+      <img class="wimg" src="daybook-logo-clear.png" alt="Daybook">
+    </div>
+    <div class="navg">
+      <small>General</small>
+      <button class="nav on" data-nav="schedule"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Schedule</button>
+      <button class="nav" data-nav="progress"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/></svg>Progress</button>
+      <button class="nav" data-nav="avail"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg>Free time</button>
+      <button class="nav" data-nav="rules"><svg viewBox="0 0 24 24"><path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h6"/></svg>House rules</button>
+    </div>
+    <div class="navg tools">
+      <small>Tools</small>
+      <button class="nav" id="sideAdd"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/></svg>Add event</button>
+      <button class="nav" id="sideReset"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2"/><path d="M4 4v5h5"/></svg>Clear progress</button>
+    </div>
+    <div class="spacer"></div>
+    <div class="mini"><span>Sprint progress</span><b id="sideBig">0%</b><div class="mbar"><i id="sideBar"></i></div><span id="sideTxt"></span></div>
+  </aside>
+
+  <main>
+    <div class="top">
+      <div class="search">
+        <span class="sbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4-4"/></svg></span>
+        <input id="q" type="search" placeholder="Search tasks" aria-label="Search tasks">
+        <div class="in" id="filters"><span>In:</span></div>
+      </div>
+      <button class="rbtn" id="goToday" title="Jump to today" aria-label="Jump to today"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg></button>
+    </div>
+
+    <div>
+      <h1 id="hello">Stay on track.</h1>
+      <p class="sub" id="subline"></p>
+    </div>
+
+    <!-- schedule -->
+    <section id="v-schedule" style="display:flex;flex-direction:column;gap:16px">
+      <div class="tools">
+        <div class="range">
+          <button class="arrow" id="prev" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button>
+          <button class="arrow" id="next" aria-label="Next"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
+          <span class="pill" id="rangeLbl"></span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div class="seg" id="views"><button data-v="day">Today</button><button data-v="week" class="on">Week</button><button data-v="month">Month</button></div>
+          <button class="pill" id="addBtn">Add event</button>
+        </div>
+      </div>
+      <div id="dayInfo"></div>
+      <div class="cal" id="cal"></div>
+    </section>
+
+    <!-- progress -->
+    <section id="v-progress" hidden style="display:flex;flex-direction:column;gap:16px"></section>
+
+    <!-- free time -->
+    <section id="v-avail" hidden style="display:flex;flex-direction:column;gap:16px">
+      <div class="panel">
+        <span class="lbl">Weekly free time</span>
+        <p class="dtext" style="margin:0">Thursday, Friday and Saturday are the big days. Sunday is blocked. Tasks are stacked from your start time, and a task that runs past your free hours gets a red dashed outline on the calendar.</p>
+        <table class="at" id="atable"></table>
+        <div class="acts" style="justify-content:flex-start"><button class="btn" id="availReset">Restore defaults</button></div>
+      </div>
+    </section>
+
+    <!-- rules -->
+    <section id="v-rules" hidden>
+      <ul class="rules">
+        <li>Free time per week is 24 h: Mon and Wed 3 h, Tue 2 h, then Thu 5 h, Fri 6 h and Sat 5 h. Sunday is off, with nothing scheduled.</li>
+        <li>On 2–3 h days, do the theory block first. Shooting comes after.</li>
+        <li>Enter the contest on Sat 31 Oct, but only if assessments #2 and #3 are both 85% or higher. Otherwise push it a week and repeat Week 3.</li>
+        <li>Thursday to Saturday carry the heavy lifting: assessments, long shoots and write-ups land there.</li>
+        <li>Charge batteries and clear memory cards the night before every shoot.</li>
+        <li>Missed a day? Don't skip it. Shrink it, and log what you did.</li>
+      </ul>
+    </section>
+
+    <div class="foot">Progress saves on this device. Demo data shown.</div>
+  </main>
+</div>
+
+<dialog id="dlg"></dialog>
+
+<script>
+/* ---------- data ---------- */
+const START=new Date(2026,9,17), DAYS=30, NOCOUNT=[];
+const CATS={S:"Theory",L:"Shooting",P:"Project / write-up",A:"Video",R:"Review",E:"Milestone",X:"My event"};
+const CCOL={S:"#f6d24a",L:"#b9c9f1",P:"#f2a6d3",A:"#f4cdb0",R:"#e3dcc9",E:"#111",X:"#d7e8c4"};
+const ICON={
+ S:'<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6z"/>',
+ L:'<path d="m5 8 4 4-4 4M12 17h7"/>',
+ P:'<path d="M5 19l1-4L16 5l3 3L9 18z"/>',
+ A:'<path d="M7 18a4 4 0 0 1-.5-8 5.5 5.5 0 0 1 10.5 1.5A3.3 3.3 0 0 1 17 18z"/>',
+ R:'<path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v5h-5"/>',
+ E:'<path d="M5 4v16M5 5h12l-2 4 2 4H5"/>',
+ X:'<circle cx="12" cy="12" r="7"/><path d="M12 8v4l3 2"/>'};
+const icon=c=>`<span class="ico"><svg viewBox="0 0 24 24">${ICON[c]}</svg></span>`;
+
+/* [category, minutes, title, detail] */
+const PLAN=[
+/*17 Sat*/{label:"Kick-off",t:[
+ ["S",60,"Camera basics","Learn the dials: mode wheel, ISO, aperture, shutter speed."],
+ ["S",60,"Exposure triangle","How the three settings trade off against each other."],
+ ["L",60,"First walk","Shoot 30 frames around your block in aperture priority."],
+ ["L",60,"Manual mode drills","Same subject, five different exposures."],
+ ["P",30,"Portfolio folder","Create a folder structure and a cloud backup."],
+ ["R",30,"Notes","Write down three things that surprised you."]],
+ check:"You can explain what changes when you open the aperture one stop."},
+/*18 Sun*/null,
+/*19 Mon*/{t:[
+ ["S",90,"Composition rules","Thirds, leading lines, framing, negative space."],
+ ["L",60,"Rule of thirds shoot","20 frames using only the thirds grid."],
+ ["R",30,"Review favourites","Pick the best 3 and say why."]]},
+/*20 Tue*/{t:[
+ ["S",60,"Light, part 1","Hard vs soft light, direction, colour temperature."],
+ ["L",60,"Window light portraits","Photograph a friend or a houseplant by a window."]]},
+/*21 Wed*/{t:[
+ ["S",90,"Light, part 2","Golden hour, blue hour, overcast days."],
+ ["L",60,"Golden hour shoot","Go out an hour before sunset."],
+ ["R",30,"Pick 5 + notes","Add captions to your best five."]]},
+/*22 Thu*/{t:[
+ ["S",90,"Lenses and focal length","Wide vs standard vs tele, and what each does to perspective."],
+ ["L",120,"Street walk","Candid shots in a busy area. Respect people's space."],
+ ["P",90,"Photo essay: my neighbourhood","Plan 10 frames that tell a story."]],
+ check:"You have a shortlist of 10 frames for the essay."},
+/*23 Fri*/{t:[
+ ["S",60,"Colour theory","Complementary and analogous palettes."],
+ ["S",60,"Histograms","Read a histogram and fix clipped highlights."],
+ ["L",90,"Night shoot","Tripod, low ISO, city lights."],
+ ["L",60,"Long exposure","Smooth water or light trails."],
+ ["L",45,"Macro","Close-ups of anything small."],
+ ["R",45,"Weekly retro","What took longer than planned?"]]},
+/*24 Sat*/{t:[
+ ["S",60,"Raw vs JPEG","Why raw gives you room to recover."],
+ ["S",60,"Intro to editing","Crop, straighten, exposure, contrast."],
+ ["L",90,"Editing session","Edit 15 photos from this week."],
+ ["L",60,"Presets","Build one preset you actually like."],
+ ["R",30,"Weekly retro","What worked, what to change."]]},
+/*25 Sun*/null,
+/*26 Mon*/{label:"Assessment #1",t:[
+ ["S",90,"Assessment #1","Timed quiz on exposure, light and composition."],
+ ["L",60,"Edit 10 photos","Consistent look across the set."],
+ ["R",30,"Log entry","Note your score in the log."]]},
+/*27 Tue*/{t:[
+ ["S",60,"Review assessment #1","Write why each right answer is right."],
+ ["L",60,"Black and white","Shoot for contrast and texture."]]},
+/*28 Wed*/{t:[
+ ["S",60,"Portrait lighting","Rembrandt, loop and butterfly setups."],
+ ["S",60,"Posing basics","Direct a subject without making it stiff."],
+ ["P",60,"Essay draft","Sequence your 10 frames."]]},
+/*29 Thu*/{label:"Assessment #2",t:[
+ ["S",90,"Assessment #2","Timed quiz. Aim for 85%+."],
+ ["S",60,"Review assessment #2","Fix the gaps."],
+ ["L",90,"Home studio","Portrait with a lamp and a white sheet."],
+ ["P",60,"Publish essay #1","Put it on your portfolio page."]]},
+/*30 Fri*/{t:[
+ ["S",60,"Dynamic range","HDR, bracketing and graduated filters."],
+ ["S",60,"Focus techniques","Back-button focus, tracking, hyperfocal distance."],
+ ["L",120,"Landscape trip","Sunrise at a nearby viewpoint."],
+ ["L",90,"Panoramas","Stitch a 5-frame panorama."],
+ ["R",30,"Cull and rate","Star-rate the day's shots."]]},
+/*31 Sat*/{label:"Assessment #3 · Enter contest",t:[
+ ["S",90,"Assessment #3","Timed quiz. Aim for 85%+."],
+ ["S",60,"Review assessment #3","Review wrong answers."],
+ ["R",30,"Enter the contest","Submit three images to a local photo contest."],
+ ["L",120,"Astro basics","Moon and star shots with a tripod."]]},
+/*1 Sun*/null,
+/*2 Mon*/{t:[
+ ["S",60,"Weak spots","Revisit your two weakest topics."],
+ ["L",90,"Action shots","Shutter speed practice with moving subjects."],
+ ["R",30,"Log entry","Note what you fixed."]],
+ check:"You can freeze motion at 1/1000 s and blur it at 1/15 s."},
+/*3 Tue*/{t:[
+ ["S",60,"Flash basics","On-camera vs off-camera, bounce flash."],
+ ["L",60,"Flash practice","Indoor portraits with bounce."]]},
+/*4 Wed*/{label:"Assessment #4",t:[
+ ["S",90,"Assessment #4","Full timed quiz."],
+ ["S",90,"Review assessment #4","Review wrong answers."]]},
+/*5 Thu*/{label:"Taper",t:[
+ ["S",120,"Final review","Last targeted pass."],
+ ["S",90,"Notes pass","Read through your own notes."],
+ ["R",30,"Showcase logistics","Print list, frames, venue time."]]},
+/*6 Fri*/{label:"Showcase day",t:[
+ ["E",180,"Gallery showcase","Present your photo essay. You are ready."],
+ ["R",30,"Feedback notes","Write down what people said while it's fresh."]]},
+/*7 Sat*/{label:"Video day 1",t:[
+ ["A",120,"Intro to video","Frame rate, shutter angle, resolution."],
+ ["P",60,"Gear notes","What you own, what you'd borrow."],
+ ["L",120,"First clips","Shoot 10 short clips of everyday moments."]],
+ check:"You can explain the 180-degree shutter rule."},
+/*8 Sun*/null,
+/*9 Mon*/{t:[
+ ["A",120,"Framing and movement","Static, pan, tilt, handheld."],
+ ["A",60,"Shot list lab","Write a shot list for a 30-second clip."]]},
+/*10 Tue*/{t:[
+ ["A",120,"Audio basics","Why sound matters more than picture."]]},
+/*11 Wed*/{t:[
+ ["A",120,"Shoot the clip","Follow your shot list."],
+ ["A",60,"Import and organise","Bins, naming, backups."]]},
+/*12 Thu*/{t:[
+ ["A",60,"Rough cut","Assemble the clip."],
+ ["A",60,"Pacing","Trim until every cut earns its place."],
+ ["A",120,"Colour and sound","Grade the footage and fix the audio."],
+ ["R",60,"Mid-retro","Hours logged so far, what worked, what to change."]],
+ check:"Your clip plays start to finish with clean audio."},
+/*13 Fri*/{t:[
+ ["P",120,"Write-up #2 draft","How I made my first short film."],
+ ["A",120,"Second clip","Apply what you learned to a new subject."],
+ ["L",60,"Behind the scenes","Photograph the shoot itself."],
+ ["R",60,"Notes","Catch up on notes."]]},
+/*14 Sat*/{label:"Sprint wrap-up",t:[
+ ["P",90,"Publish write-up #2","Put it on your portfolio page."],
+ ["R",90,"30-day retro","Hours logged, what worked, what to change."],
+ ["R",60,"Next sprint plan","Choose the next 30-day goal."],
+ ["A",60,"Video review","Review the week's footage."]]},
+/*15 Sun*/null
+];
+const WEEKTHEME={42:"Kick-off Saturday",43:"Light and composition",44:"Assessments and first essay",45:"Showcase week",46:"Into video"};
+const DEF_AV={1:{h:3,s:"18:00"},2:{h:2,s:"18:00"},3:{h:3,s:"18:00"},4:{h:5,s:"10:00"},5:{h:6,s:"10:00"},6:{h:5,s:"10:00"},0:{h:0,s:"10:00"}};
+const WD=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+/* ---------- helpers ---------- */
+const pad=n=>String(n).padStart(2,"0");
+const dk=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const mk=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return mk(x)};
+const idxOf=d=>Math.round((mk(d)-START)/864e5);
+const tmin=s=>{const [h,m]=s.split(":").map(Number);return h*60+m};
+const ft=m=>pad(Math.floor(m/60))+":"+pad(m%60);
+const hrs=m=>{const h=m/60;return (Number.isInteger(h)?h:h.toFixed(1))+" h"};
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const sd=d=>d.getDate()+" "+MON[d.getMonth()];
+function isoWeek(d){const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const w=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-w);const y=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil(((t-y)/864e5+1)/7)}
+const mon=d=>addD(d,-((d.getDay()+6)%7));
+const inSprint=d=>{const i=idxOf(d);return i>=0&&i<DAYS};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+/* demo: pretend today is day 13 of the sprint so the calendar looks lived-in */
+const DEMO_DAY=12;
+const TODAY=addD(START,DEMO_DAY);
+
+/* ---------- state ---------- */
+const LS="daybook-demo1";
+function demoDone(){
+  const done={};
+  for(let i=0;i<DEMO_DAY;i++){
+    if(!PLAN[i])continue;
+    PLAN[i].t.forEach((x,n)=>{if(!(i===9&&n===2)&&!(i===5&&n===2))done[dk(addD(START,i))+"-"+n]=true});
+  }
+  done[dk(TODAY)+"-0"]=true;
+  return done;
+}
+let S={done:demoDone(),events:[
+  {id:"x1",title:"Camera club meetup",date:dk(addD(START,13)),start:"19:00",dur:90,note:"Bring two prints to show."},
+  {id:"x2",title:"Lens cleaning",date:dk(addD(START,9)),start:"20:30",dur:30,note:"Blower, brush, microfibre."},
+  {id:"x3",title:"Dentist",date:dk(addD(START,11)),start:"17:00",dur:60,note:""}
+],avail:JSON.parse(JSON.stringify(DEF_AV)),off:[]};
+try{const x=JSON.parse(localStorage.getItem(LS)||"null");if(x)S=Object.assign(S,x)}catch(e){}
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}};
+
+function freeMin(d){
+  if(NOCOUNT.includes(dk(d)))return 0;
+  if(!inSprint(d))return 0;
+  return Math.round((+S.avail[d.getDay()].h||0)*60);
+}
+function dayItems(d){
+  const key=dk(d),i=idxOf(d),out=[];
+  const entry=inSprint(d)?PLAN[i]:null;
+  if(entry){
+    let cur=tmin(S.avail[d.getDay()].s||"10:00");const lim=cur+freeMin(d);
+    entry.t.forEach((x,n)=>{
+      out.push({id:key+"-"+n,cat:x[0],dur:x[1],title:x[2],detail:x[3],start:cur,date:key,over:cur+x[1]>lim});cur+=x[1];
+    });
+  }
+  S.events.filter(e=>e.date===key).forEach(e=>out.push({id:e.id,cat:"X",dur:e.dur,title:e.title,detail:e.note||"",start:tmin(e.start),date:key,custom:true}));
+  return out;
+}
+function matches(it){
+  if(S.off.includes(it.cat))return false;
+  const q=document.getElementById("q").value.trim().toLowerCase();
+  return !q||(it.title+" "+it.detail+" "+CATS[it.cat]).toLowerCase().includes(q);
+}
+function layout(items){
+  items=items.slice().sort((a,b)=>a.start-b.start||b.dur-a.dur);
+  let cluster=[],end=-1;const res=[];
+  const flush=()=>{const lanes=[];cluster.forEach(it=>{let l=lanes.findIndex(e=>e<=it.start);if(l<0){l=lanes.length;lanes.push(0)}lanes[l]=it.start+it.dur;it.lane=l});cluster.forEach(it=>it.lanes=lanes.length);res.push(...cluster);cluster=[]};
+  items.forEach(it=>{if(cluster.length&&it.start>=end)flush();cluster.push(it);end=Math.max(end,it.start+it.dur)});
+  if(cluster.length)flush();
+  return res;
+}
+
+/* ---------- view state ---------- */
+let view=window.innerWidth<700?"day":"week";
+let anchor=TODAY;
+let nav="schedule";
+
+/* ---------- timeline renderer ---------- */
+function renderTimeline(dates,single){
+  const PX=1.15;
+  const all=dates.flatMap(d=>dayItems(d).map(it=>({...it,d})));
+  let a=1440,b=0;
+  dates.forEach(d=>{const f=freeMin(d);if(f){const s=tmin(S.avail[d.getDay()].s||"10:00");a=Math.min(a,s);b=Math.max(b,s+f)}});
+  if(a>b){a=600;b=1020}
+  all.forEach(it=>{a=Math.min(a,it.start);b=Math.max(b,it.start+it.dur)});
+  a=Math.floor(a/60)*60;b=Math.ceil(b/60)*60;
+  const H=(b-a)*PX;
+  const nowMin=new Date().getHours()*60+new Date().getMinutes();
+  const cols=single?"56px minmax(0,1fr)":"46px repeat(7,minmax(0,1fr))";
+  let h=`<div class="grid${single?" one":""}" style="grid-template-columns:${cols}"><div class="wk">${single?"":"W<br>"+isoWeek(dates[0])}</div>`;
+  dates.forEach(d=>{
+    const t=dk(d)===dk(TODAY),i=idxOf(d),sp=inSprint(d),f=freeMin(d);
+    const key=[4,5,6].includes(d.getDay())&&sp;
+    let fl;
+    if(!sp)fl="Outside sprint";else if(!f)fl="No time";else fl="Free "+hrs(f);
+    h+=`<div class="dh${t?" today":""}${(!sp||!f)&&!t?" dim":""}${key?" star":""}"><span class="n">${WD[d.getDay()].slice(0,single?9:3)}</span><span class="d">${pad(d.getDate())}/${pad(d.getMonth()+1)}</span><span class="f">${fl}${sp?" · Day "+(i+1):""}</span></div>`;
+  });
+  h+=`<div class="axis" style="height:${H}px">`;
+  for(let m=a;m<=b;m+=30)h+=`<span style="top:${(m-a)*PX}px">${ft(m)}</span>`;
+  h+=`</div>`;
+  dates.forEach(d=>{
+    const f=freeMin(d),sp=inSprint(d),s=tmin(S.avail[d.getDay()].s||"10:00");
+    const cls=!f?"hatch":"";
+    h+=`<div class="col ${cls}${d.getDay()===0?" sun":""}" style="height:${H}px;${!sp?"opacity:.6":""}">`;
+    for(let m=a;m<b;m+=60)h+=`<div class="hl" style="top:${(m-a)*PX}px"></div>`;
+    if(f)h+=`<div class="free" style="top:${(s-a)*PX}px;height:${f*PX}px"></div>`;
+    if(!sp)h+=`<div class="colnote">${idxOf(d)<0?"Before the sprint":"After the sprint"}</div>`;
+    else if(d.getDay()===0)h+=`<div class="colnote">No time on Sunday</div>`;
+    layout(dayItems(d)).forEach(it=>{
+      const top=(it.start-a)*PX+2,hh=it.dur*PX-4,w=100/it.lanes;
+      const sz=hh<56?"sm":(hh<104?"md":"lg");
+      const done=S.done[it.id];
+      const lines=Math.max(1,Math.floor((hh-70)/13));
+      h+=`<div class="ev c-${it.cat} ${sz}${done?" done":""}${it.over?" over":""}${matches(it)?"":" dimmed"}" role="button" tabindex="0" data-id="${it.id}" data-date="${it.date}" style="top:${top}px;height:${hh}px;left:calc(${it.lane*w}% + 4px);width:calc(${w}% - 8px)">
+        <div class="r1">${icon(it.cat)}<span class="ttl" title="${esc(it.title)}">${esc(it.title)}</span><button class="tick" data-tick="${it.id}" aria-label="Mark ${esc(it.title)} done" aria-pressed="${!!done}"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></button></div>
+        <span class="meta">${ft(it.start)} – ${ft(it.start+it.dur)}${it.over?" · over free time":""}</span>
+        ${it.detail?`<span class="det" style="-webkit-line-clamp:${lines}">${esc(it.detail)}</span>`:""}
+      </div>`;
+    });
+    if(dk(d)===dk(TODAY)&&nowMin>=a&&nowMin<=b)h+=`<div class="nowline" style="top:${(nowMin-a)*PX}px"><b>${ft(nowMin)}</b></div>`;
+    h+=`</div>`;
+  });
+  return h+`</div>`;
+}
+
+function renderMonth(){
+  const first=new Date(anchor.getFullYear(),anchor.getMonth(),1);
+  const s=mon(first);let h=`<div class="mgrid">`;
+  ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].forEach(x=>h+=`<div class="mdh">${x}</div>`);
+  for(let i=0;i<42;i++){
+    const d=addD(s,i);if(i>=35&&d.getMonth()!==first.getMonth())break;
+    const items=dayItems(d),plan=items.reduce((a,x)=>a+x.dur,0),dn=items.filter(x=>S.done[x.id]).reduce((a,x)=>a+x.dur,0);
+    const cats=[...new Set(items.map(x=>x.cat))];
+    const e=inSprint(d)&&PLAN[idxOf(d)]&&PLAN[idxOf(d)].label;
+    const ex=items.some(x=>x.cat==="E");
+    h+=`<button class="mcell${d.getMonth()!==first.getMonth()?" out":""}${d.getDay()===0?" sun":""}${dk(d)===dk(TODAY)?" today":""}" data-day="${dk(d)}">
+      <div class="mn"><span>${d.getDate()}</span><small>${inSprint(d)&&freeMin(d)?"free "+hrs(freeMin(d)):(d.getDay()===0?"off":"")}</small></div>
+      ${e?`<span class="lab${ex?" ex":""}">${esc(e)}</span>`:""}
+      <div class="dots">${cats.map(c=>`<i style="background:${CCOL[c]};${c==="E"?"":"border:1px solid rgba(0,0,0,.12)"}"></i>`).join("")}</div>
+      ${plan?`<span class="ms">${hrs(plan)} planned</span><div class="mbar2"><i style="width:${Math.min(100,dn/plan*100)}%"></i></div>`:""}
+    </button>`;
+  }
+  return h+`</div>`;
+}
+
+function renderSchedule(){
+  const cal=document.getElementById("cal"),info=document.getElementById("dayInfo");
+  document.querySelectorAll("#views button").forEach(b=>b.classList.toggle("on",b.dataset.v===view));
+  info.innerHTML="";
+  if(view==="week"){
+    const m=mon(anchor),dates=[...Array(7)].map((_,i)=>addD(m,i));
+    document.getElementById("rangeLbl").textContent=`${sd(dates[0])} – ${sd(dates[6])} · Week ${isoWeek(m)}${WEEKTHEME[isoWeek(m)]?" · "+WEEKTHEME[isoWeek(m)]:""}`;
+    cal.innerHTML=renderTimeline(dates,false);
+  }else if(view==="day"){
+    const d=anchor,i=idxOf(d),e=inSprint(d)&&PLAN[i];
+    document.getElementById("rangeLbl").textContent=`${WD[d.getDay()]} ${sd(d)}${inSprint(d)?" · Day "+(i+1)+" of "+DAYS:""}`;
+    const items=dayItems(d),plan=items.reduce((a,x)=>a+x.dur,0);
+    info.innerHTML=`<div class="dayhead"><span class="chip pk">Free ${hrs(freeMin(d))}</span><span class="chip">Planned ${hrs(plan)}</span>${e&&e.label?`<span class="chip">${esc(e.label)}</span>`:""}</div>${e&&e.check?`<p class="check"><b>Skill check:</b> ${esc(e.check)}</p>`:""}`;
+    cal.innerHTML=renderTimeline([d],true);
+  }else{
+    document.getElementById("rangeLbl").textContent=MON[anchor.getMonth()]+" "+anchor.getFullYear();
+    cal.innerHTML=renderMonth();
+  }
+}
+
+/* ---------- other views ---------- */
+function stats(){
+  let planned=0,done=0,tasks=0,tdone=0;const byCat={},byWeek={};
+  for(let i=0;i<DAYS;i++){
+    const d=addD(START,i);
+    dayItems(d).filter(x=>!x.custom).forEach(x=>{
+      planned+=x.dur;tasks++;const dn=!!S.done[x.id];if(dn){done+=x.dur;tdone++}
+      const c=byCat[x.cat]=byCat[x.cat]||[0,0];c[0]+=x.dur;if(dn)c[1]+=x.dur;
+      const w=isoWeek(d),k=byWeek[w]=byWeek[w]||[0,0,0];k[0]+=x.dur;if(dn)k[1]+=x.dur;
+    });
+    byWeek[isoWeek(d)]=byWeek[isoWeek(d)]||[0,0,0];byWeek[isoWeek(d)][2]+=freeMin(d);
+  }
+  return {planned,done,tasks,tdone,byCat,byWeek};
+}
+function renderProgress(){
+  const s=stats(),p=document.getElementById("v-progress");
+  const row=(l,a,b,c)=>`<div class="rowb"><span>${l}</span><div class="bar"><i style="width:${b?Math.min(100,a/b*100):0}%;${c?"background:"+c:""}"></i></div><em>${hrs(a)} / ${hrs(b)}</em></div>`;
+  p.innerHTML=`<div class="panels">
+    <div class="panel"><span class="lbl">Study time done</span><span class="big">${hrs(s.done)} <small>of ${hrs(s.planned)}</small></span><div class="bar"><i style="width:${s.planned?s.done/s.planned*100:0}%"></i></div></div>
+    <div class="panel"><span class="lbl">Tasks done</span><span class="big">${s.tdone} <small>of ${s.tasks}</small></span><div class="bar"><i style="width:${s.tasks?s.tdone/s.tasks*100:0}%"></i></div></div>
+    <div class="panel"><span class="lbl">Free time in the sprint</span><span class="big">${hrs(Object.values(s.byWeek).reduce((a,x)=>a+x[2],0))}</span><span class="sub" style="margin:0">Thu, Fri and Sat hold ${hrs((+S.avail[4].h+ +S.avail[5].h+ +S.avail[6].h)*60)} of every 24 h week.</span></div>
+  </div>
+  <div class="panel"><span class="lbl">By week</span>${Object.keys(s.byWeek).map(w=>row(`Week ${w}`,s.byWeek[w][1],s.byWeek[w][0])).join("")}</div>
+  <div class="panel"><span class="lbl">By topic</span>${Object.keys(s.byCat).map(c=>row(CATS[c],s.byCat[c][1],s.byCat[c][0],CCOL[c])).join("")}</div>`;
+}
+function renderAvail(){
+  const order=[1,2,3,4,5,6,0];
+  document.getElementById("atable").innerHTML=`<tr><th>Day</th><th>Free hours</th><th>Start time</th></tr>`+order.map(d=>`<tr class="${[4,5,6].includes(d)?"key":""}"><td>${WD[d]}</td><td><input type="number" min="0" max="12" step="0.5" value="${S.avail[d].h}" data-ah="${d}" aria-label="${WD[d]} free hours"></td><td><input type="time" value="${S.avail[d].s}" data-as="${d}" aria-label="${WD[d]} start time"></td></tr>`).join("");
+}
+function renderSide(){
+  const s=stats(),pc=s.planned?Math.round(s.done/s.planned*100):0;
+  document.getElementById("sideBig").textContent=pc+"%";
+  document.getElementById("sideBar").style.width=pc+"%";
+  document.getElementById("sideTxt").textContent=`${hrs(s.done)} of ${hrs(s.planned)} · ${s.tdone}/${s.tasks} tasks`;
+  const i=idxOf(TODAY);let hello,sub;
+  if(i<0){hello="Your sprint starts "+(i===-1?"tomorrow":"soon");sub=`Day 1 is Sat ${sd(START)}. Thursday, Friday and Saturday are your heavy days, and Sunday is always free of tasks.`}
+  else if(i>=DAYS){hello="Sprint complete.";sub="30 days done. Time to plan the next sprint."}
+  else{hello=`Day ${i+1} of ${DAYS}.`;sub=`${WD[TODAY.getDay()]}: ${freeMin(TODAY)?hrs(freeMin(TODAY))+" of free time planned.":"no time scheduled today."} Thursday, Friday and Saturday are your heavy days.`}
+  document.getElementById("hello").textContent=hello;
+  document.getElementById("subline").textContent=sub;
+}
+function renderAll(){
+  ["schedule","progress","avail","rules"].forEach(n=>document.getElementById("v-"+n).hidden=n!==nav);
+  document.querySelectorAll("[data-nav]").forEach(b=>b.classList.toggle("on",b.dataset.nav===nav));
+  if(nav==="schedule")renderSchedule();
+  if(nav==="progress")renderProgress();
+  if(nav==="avail")renderAvail();
+  renderSide();
+}
+
+/* ---------- dialogs ---------- */
+const dlg=document.getElementById("dlg");
+function openDetail(id,date){
+  const it=dayItems(new Date(date+"T00:00:00")).find(x=>x.id===id);if(!it)return;
+  const d=new Date(date+"T00:00:00");
+  dlg.innerHTML=`<h3>${esc(it.title)}</h3>
+   <div class="dd"><span class="chip" style="background:${CCOL[it.cat]};${it.cat==="E"?"color:#fff":""}">${CATS[it.cat]}</span><span class="chip">${WD[d.getDay()].slice(0,3)} ${sd(d)}</span><span class="chip">${ft(it.start)} – ${ft(it.start+it.dur)}</span><span class="chip">${it.dur} min</span></div>
+   <p class="dtext">${esc(it.detail||"No notes.")}</p>
+   ${it.over?`<p class="dtext" style="color:var(--red)">This runs past your free time for the day.</p>`:""}
+   <div class="acts">${it.custom?`<button class="btn d" data-del="${it.id}">Delete</button>`:""}<button class="btn" data-close>Close</button><button class="btn p" data-toggle="${it.id}">${S.done[it.id]?"Mark not done":"Mark done"}</button></div>`;
+  dlg.showModal();
+}
+function openAdd(date){
+  dlg.innerHTML=`<h3>Add event</h3><p class="dtext" style="margin:0;color:var(--muted)">Put anything on the calendar: a lecture, a break, an extra study block.</p>
+  <form class="form" id="addForm">
+   <label>Title<input type="text" name="title" required maxlength="60"></label>
+   <div class="two"><label>Date<input type="date" name="date" value="${date||dk(anchor)}" required></label><label>Start<input type="time" name="start" value="10:00" required></label></div>
+   <div class="two"><label>Minutes<input type="number" name="dur" value="60" min="10" max="600" step="5" required></label>
+   <label>Note<input type="text" name="note" maxlength="120"></label></div>
+   <div class="acts"><button type="button" class="btn" data-close>Cancel</button><button class="btn p" type="submit">Add</button></div></form>`;
+  dlg.showModal();dlg.querySelector("input").focus();
+}
+function confirmReset(){
+  dlg.innerHTML=`<h3>Clear progress?</h3><p class="dtext">This unticks every task. Your own events and free-time settings stay.</p><div class="acts"><button class="btn" data-close>Keep it</button><button class="btn p" data-reset>Yes, clear</button></div>`;
+  dlg.showModal();
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click",e=>{
+  const t=e.target;
+  const tick=t.closest("[data-tick]");
+  if(tick){e.stopPropagation();const id=tick.dataset.tick;if(S.done[id])delete S.done[id];else S.done[id]=true;save();renderAll();return}
+  const ev=t.closest(".ev");if(ev){openDetail(ev.dataset.id,ev.dataset.date);return}
+  const mc=t.closest("[data-day]");if(mc){anchor=new Date(mc.dataset.day+"T00:00:00");view="day";renderAll();return}
+  const nv=t.closest("[data-nav]");if(nv){nav=nv.dataset.nav;renderAll();return}
+  const vb=t.closest("#views button");if(vb){view=vb.dataset.v;renderAll();return}
+  if(t.closest("[data-close]")){dlg.close();return}
+  const tg=t.closest("[data-toggle]");if(tg){const id=tg.dataset.toggle;if(S.done[id])delete S.done[id];else S.done[id]=true;save();dlg.close();renderAll();return}
+  const dl=t.closest("[data-del]");if(dl){S.events=S.events.filter(x=>x.id!==dl.dataset.del);delete S.done[dl.dataset.del];save();dlg.close();renderAll();return}
+  if(t.closest("[data-reset]")){S.done={};save();dlg.close();renderAll();return}
+  const fc=t.closest("[data-filter]");if(fc){const c=fc.dataset.filter;S.off=S.off.includes(c)?S.off.filter(x=>x!==c):[...S.off,c];save();buildFilters();renderAll();return}
+});
+document.addEventListener("keydown",e=>{
+  if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("ev")){e.preventDefault();openDetail(e.target.dataset.id,e.target.dataset.date)}
+});
+document.getElementById("prev").onclick=()=>step(-1);
+document.getElementById("next").onclick=()=>step(1);
+function step(n){
+  if(view==="week")anchor=addD(anchor,7*n);
+  else if(view==="day")anchor=addD(anchor,n);
+  else anchor=new Date(anchor.getFullYear(),anchor.getMonth()+n,1);
+  renderAll();
+}
+document.getElementById("goToday").onclick=()=>{nav="schedule";anchor=TODAY;renderAll()};
+document.getElementById("addBtn").onclick=()=>openAdd();
+document.getElementById("sideAdd").onclick=()=>{nav="schedule";renderAll();openAdd()};
+document.getElementById("sideReset").onclick=confirmReset;
+document.getElementById("q").addEventListener("input",()=>{if(nav!=="schedule"){nav="schedule"}renderAll()});
+dlg.addEventListener("submit",e=>{
+  if(e.target.id!=="addForm")return;e.preventDefault();
+  const f=new FormData(e.target);
+  S.events.push({id:"x"+Date.now(),title:f.get("title").trim(),date:f.get("date"),start:f.get("start"),dur:+f.get("dur"),note:f.get("note").trim()});
+  save();dlg.close();renderAll();
+});
+dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close()});
+document.getElementById("atable").addEventListener("change",e=>{
+  const h=e.target.dataset.ah,s=e.target.dataset.as;
+  if(h!==undefined)S.avail[h].h=Math.max(0,Math.min(12,+e.target.value||0));
+  if(s!==undefined&&e.target.value)S.avail[s].s=e.target.value;
+  save();renderAll();
+});
+document.getElementById("availReset").onclick=()=>{S.avail=JSON.parse(JSON.stringify(DEF_AV));save();renderAll()};
+function buildFilters(){
+  document.getElementById("filters").innerHTML="<span>In:</span>"+["S","L","P","A","R","E"].map(c=>`<button class="fchip${S.off.includes(c)?" off":""}" data-filter="${c}" aria-pressed="${!S.off.includes(c)}"><i style="background:${CCOL[c]}"></i>${CATS[c]}</button>`).join("");
+}
+buildFilters();renderAll();
+setInterval(()=>{if(nav==="schedule"&&view!=="month")renderSchedule()},60000);
+</script>
+</body>
+</html>
